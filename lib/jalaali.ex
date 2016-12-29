@@ -49,7 +49,7 @@ defmodule Jalaali do
   @spec to_jalaali(DateTime.t | Date.t) :: DateTime.t | Date.t
   def to_jalaali(ex_dt) do
     {jy, jm, jd} = to_jalaali({ex_dt.year, ex_dt.month, ex_dt.day})
-    %{ex_dt | year: jy, month: jm, day: jd}
+    %{ex_dt | year: jy, month: jm, day: jd, calendar: Jalaali.Calendar}
   end
 
   @doc """
@@ -95,7 +95,7 @@ defmodule Jalaali do
   @spec to_gregorian(DateTime.t | Date.t) :: DateTime.t | Date.t
   def to_gregorian(ex_dt) do
     {gy, gm, gd} = to_gregorian({ex_dt.year, ex_dt.month, ex_dt.day})
-    %{ex_dt | year: gy, month: gm, day: gd}
+    %{ex_dt | year: gy, month: gm, day: gd, calendar: Calendar.ISO}
   end
 
   @doc """
@@ -113,6 +113,30 @@ defmodule Jalaali do
   """
   @spec is_valid_jalaali_date(Tuple.t) :: boolean()
   def is_valid_jalaali_date({jy, jm, jd}) do
+    year_is_valid = jy <= 3177 && -61 <= jy
+    month_is_valid = 1 <= jm && jm <= 12
+    day_is_valid = 1 <= jd && jd <= Jalaali.jalaali_month_length(jy, jm)
+
+    year_is_valid && month_is_valid && day_is_valid
+  end
+
+  @doc """
+  Checks whether a Jalaali date is valid or not.
+
+  ## Parameters
+    - jy: jalaali year
+    - jm: jalaali month
+    - jd: jalaali day of month
+
+  ## Examples
+    iex> Jalaali.is_valid_jalaali_date(1395, 9, 27)
+    true
+
+    iex> Jalaali.is_valid_jalaali_date(1395, 91, 27)
+    false
+  """
+  @spec is_valid_jalaali_date(Tuple.t) :: boolean()
+  def is_valid_jalaali_date(jy, jm, jd) do
     year_is_valid = jy <= 3177 && -61 <= jy
     month_is_valid = 1 <= jm && jm <= 12
     day_is_valid = 1 <= jd && jd <= Jalaali.jalaali_month_length(jy, jm)
